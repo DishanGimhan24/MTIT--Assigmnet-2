@@ -1,0 +1,16 @@
+{
+  "name": "assignment2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently --names \"PRODUCTS,CUSTOMERS,ORDERS,PAYMENTS,GATEWAY\" --prefix-colors \"blue,green,yellow,red,magenta\" \"npm start --prefix product-service\" \"npm start --prefix customer-service\" \"npm start --prefix order-service\" \"npm start --prefix payment-service\" \"npm start --prefix api-gateway\"",
+    "start:all": "concurrently --names \"PRODUCTS,CUSTOMERS,ORDERS,PAYMENTS,GATEWAY,FRONTEND\" --prefix-colors \"blue,green,yellow,red,magenta,cyan\" \"npm start --prefix product-service\" \"npm start --prefix customer-service\" \"npm start --prefix order-service\" \"npm start --prefix payment-service\" \"npm start --prefix api-gateway\" \"npm start --prefix frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
