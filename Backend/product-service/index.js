@@ -358,11 +358,11 @@ app.put('/api/products/:id', async (req, res) => {
       { returnDocument: 'after' }
     );
 
-    if (!result.value) {
+    if (!result) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json(formatDoc(result.value));
+    res.json(formatDoc(result));
   } catch (error) {
     res.status(500).json({ message: 'Failed to update product', error: error.message });
   }

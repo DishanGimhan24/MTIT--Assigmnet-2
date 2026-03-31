@@ -455,8 +455,7 @@ const services = [
 
 services.forEach(({ path, target, name }) => {
   app.use(
-    path,
-    createProxyMiddleware({
+    createProxyMiddleware(path, {
       target,
       changeOrigin: true,
       logLevel: 'warn',

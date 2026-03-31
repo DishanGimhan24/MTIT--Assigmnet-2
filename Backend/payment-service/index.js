@@ -393,11 +393,11 @@ app.put('/api/payments/:id', async (req, res) => {
       { returnDocument: 'after' }
     );
 
-    if (!result.value) {
+    if (!result) {
       return res.status(404).json({ error: 'Payment not found' });
     }
 
-    res.json(formatDoc(result.value));
+    res.json(formatDoc(result));
   } catch (error) {
     res.status(500).json({ error: 'Failed to update payment', details: error.message });
   }
