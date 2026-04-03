@@ -1,20 +1,20 @@
-// require('dns').setServers(['1.1.1.1', '8.8.8.8']);
+require("dns").setServers(["1.1.1.1", "8.8.8.8"]);
 
-const express = require('express');
-const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
-const { MongoClient, ObjectId } = require('mongodb');
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
-const path = require('path');
+const express = require("express");
+const cors = require("cors");
+const { v4: uuidv4 } = require("uuid");
+const { MongoClient, ObjectId } = require("mongodb");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const path = require("path");
 
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 const PORT = Number(process.env.CUSTOMER_SERVICE_PORT) || 3002;
 const MONGODB_URI = process.env.MONGODB_URI;
-const DB_NAME = process.env.MONGODB_DB_NAME || 'movie_explorer';
-const COLLECTION = 'customers';
+const DB_NAME = process.env.MONGODB_DB_NAME || "movie_explorer";
+const COLLECTION = "customers";
 
 let db;
 let dbPromise;
@@ -44,15 +44,20 @@ const initDb = async () => {
   }
 
   if (!MONGODB_URI) {
-    throw new Error('MONGODB_URI is missing in environment variables');
+    throw new Error("MONGODB_URI is missing in environment variables");
   }
 
   if (!dbPromise) {
-    const client = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
-    dbPromise = client.connect()
+    const client = new MongoClient(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+    });
+    dbPromise = client
+      .connect()
       .then(() => {
         db = client.db(DB_NAME);
-        console.log(`Customer Service connected to MongoDB database: ${DB_NAME}`);
+        console.log(
+          `Customer Service connected to MongoDB database: ${DB_NAME}`,
+        );
         return db;
       })
       .catch((error) => {
@@ -71,24 +76,25 @@ app.use(express.json());
 // Swagger configuration
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Customer Service API',
-      version: '1.0.0',
-      description: 'Microservice for managing customers in the E-Commerce platform',
+      title: "Customer Service API",
+      version: "1.0.0",
+      description:
+        "Microservice for managing customers in the E-Commerce platform",
     },
     servers: [
       {
         url: `http://localhost:${PORT}`,
-        description: 'Development server',
+        description: "Development server",
       },
     ],
   },
-  apis: ['./index.js'],
+  apis: ["./index.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 /**
  * @swagger
@@ -166,12 +172,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
  *               items:
  *                 $ref: '#/components/schemas/Customer'
  */
-app.get('/api/customers', async (req, res) => {
+app.get("/api/customers", async (req, res) => {
   try {
-    const customers = await (await getCollection()).find({}).sort({ createdAt: -1 }).toArray();
+    const customers = await (await getCollection())
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
     res.json(customers.map(formatDoc));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch customers', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch customers", error: error.message });
   }
 });
 
@@ -209,15 +220,19 @@ app.get('/api/customers', async (req, res) => {
  *                   type: string
  *                   example: "Customer not found"
  */
-app.get('/api/customers/:id', async (req, res) => {
+app.get("/api/customers/:id", async (req, res) => {
   try {
-    const customer = await (await getCollection()).findOne(buildIdQuery(req.params.id));
+    const customer = await (
+      await getCollection()
+    ).findOne(buildIdQuery(req.params.id));
     if (!customer) {
-      return res.status(404).json({ message: 'Customer not found' });
+      return res.status(404).json({ message: "Customer not found" });
     }
     res.json(formatDoc(customer));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch customer', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch customer", error: error.message });
   }
 });
 
@@ -253,11 +268,13 @@ app.get('/api/customers/:id', async (req, res) => {
  *                   type: string
  *                   example: "Fields name, email, phone, and address are required"
  */
-app.post('/api/customers', async (req, res) => {
+app.post("/api/customers", async (req, res) => {
   const { name, email, phone, address } = req.body;
 
   if (!name || !email || !phone || !address) {
-    return res.status(400).json({ message: 'Fields name, email, phone, and address are required' });
+    return res
+      .status(400)
+      .json({ message: "Fields name, email, phone, and address are required" });
   }
 
   const newCustomer = {
@@ -273,7 +290,9 @@ app.post('/api/customers', async (req, res) => {
     await (await getCollection()).insertOne(newCustomer);
     res.status(201).json(newCustomer);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to create customer', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to create customer", error: error.message });
   }
 });
 
@@ -317,7 +336,7 @@ app.post('/api/customers', async (req, res) => {
  *                   type: string
  *                   example: "Customer not found"
  */
-app.put('/api/customers/:id', async (req, res) => {
+app.put("/api/customers/:id", async (req, res) => {
   const { name, email, phone, address } = req.body;
   const update = {
     ...(name !== undefined && { name }),
@@ -327,19 +346,23 @@ app.put('/api/customers/:id', async (req, res) => {
   };
 
   try {
-    const result = await (await getCollection()).findOneAndUpdate(
+    const result = await (
+      await getCollection()
+    ).findOneAndUpdate(
       buildIdQuery(req.params.id),
       { $set: update },
-      { returnDocument: 'after' }
+      { returnDocument: "after" },
     );
 
     if (!result) {
-      return res.status(404).json({ message: 'Customer not found' });
+      return res.status(404).json({ message: "Customer not found" });
     }
 
     res.json(formatDoc(result));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update customer', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update customer", error: error.message });
   }
 });
 
@@ -381,16 +404,20 @@ app.put('/api/customers/:id', async (req, res) => {
  *                   type: string
  *                   example: "Customer not found"
  */
-app.delete('/api/customers/:id', async (req, res) => {
+app.delete("/api/customers/:id", async (req, res) => {
   try {
-    const result = await (await getCollection()).deleteOne(buildIdQuery(req.params.id));
+    const result = await (
+      await getCollection()
+    ).deleteOne(buildIdQuery(req.params.id));
     if (!result.deletedCount) {
-      return res.status(404).json({ message: 'Customer not found' });
+      return res.status(404).json({ message: "Customer not found" });
     }
 
-    res.json({ message: 'Customer deleted successfully' });
+    res.json({ message: "Customer deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete customer', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to delete customer", error: error.message });
   }
 });
 
@@ -398,6 +425,8 @@ app.delete('/api/customers/:id', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Customer Service running on port ${PORT}`);
   initDb().catch((error) => {
-    console.error(`Customer Service MongoDB connection failed: ${error.message}`);
+    console.error(
+      `Customer Service MongoDB connection failed: ${error.message}`,
+    );
   });
 });
